@@ -23,6 +23,7 @@ Dir.chdir(__dir__) do
   # Replace the inode atomically: overwriting a loaded signed dylib breaks macOS code-signing caches.
   Tempfile.create(["forme-native-", ".tmp"], destination) do |temporary|
     FileUtils.cp(source, temporary.path)
+    temporary.chmod(0o644)
     File.rename(temporary.path, File.join(destination, File.basename(source)))
   end
   FileUtils.rm_rf(File.join(__dir__, "target")) unless keep_build
