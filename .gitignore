@@ -1,0 +1,7 @@
+/.bundle/
+/pkg/
+/ext/forme_pdf/target/
+/ext/forme_pdf/Makefile
+/lib/forme_pdf/native/
+*.gem
+/coverage/
