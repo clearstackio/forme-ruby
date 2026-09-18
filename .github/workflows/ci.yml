@@ -36,6 +36,15 @@ jobs:
       - name: Test isolated installed packages
         if: matrix.ruby == '3.3'
         run: ruby script/test_packages.rb
+      - name: Test native package on AlmaLinux 10
+        if: matrix.os == 'ubuntu-22.04' && matrix.ruby == '3.3'
+        run: |
+          docker run --rm -v "$PWD/pkg:/packages:ro" almalinux:10 bash -c '
+            set -e
+            dnf -q -y install ruby rubygems
+            gem install /packages/*-x86_64-linux-gnu.gem --no-document
+            ruby -rforme_pdf -e '\''abort "Invalid PDF" unless FormePDF.render_html("<h1>AlmaLinux native package</h1>").start_with?("%PDF-"); puts "AlmaLinux PDF passed"'\''
+          '
       - uses: actions/upload-artifact@v4
         if: matrix.ruby == '3.3'
         with:
