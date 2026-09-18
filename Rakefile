@@ -10,16 +10,18 @@ task default: :spec
 
 desc "Compile the native library into this checkout"
 task :compile do
-  ruby "ext/forme_pdf/extconf.rb"
+  ruby "ext/forme_pdf/extconf.rb", "--keep-build"
 end
 
 desc "Build source gem, or precompiled gem with package[native]"
 task :package, [:kind] do |_task, args|
+  abort "Generate notices with ruby script/notices.rb first" unless File.file?("THIRD_PARTY_LICENSES.txt")
   spec = Gem::Specification.load("forme-ruby.gemspec")
   if args[:kind] == "native"
     libraries = Dir["lib/forme_pdf/native/*.{so,dylib}"]
     abort "Run rake compile first" if libraries.empty?
     platform = Gem::Platform.local
+    abort "Musl binaries are not supported" if platform.to_s.include?("musl") || RbConfig::CONFIG["host_os"].include?("musl")
     platform = Gem::Platform.new("x86_64-linux-gnu") if platform.cpu == "x86_64" && platform.os == "linux"
     supported = (platform.cpu == "arm64" && platform.os == "darwin") || platform.to_s == "x86_64-linux-gnu"
     abort "Unsupported binary platform #{platform}" unless supported

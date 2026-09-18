@@ -1,0 +1,39 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful CI run ID for this exact commit
+        required: true
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    environment: rubygems
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+      - name: Verify tested commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" > run.json
+          ruby -rjson -e 'r=JSON.parse(File.read("run.json")); abort "CI must pass for this commit on main" unless r["conclusion"] == "success" && r["head_sha"] == ENV.fetch("GITHUB_SHA") && r["head_branch"] == "main" && r["path"] == ".github/workflows/ci.yml"'
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.run_id }}
+          pattern: gems-*
+          path: pkg
+          merge-multiple: true
+      - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a
+      - name: Publish validated packages
+        run: |
+          test "$(find pkg -name '*.gem' | wc -l)" -eq 3
+          for gem_file in pkg/*.gem; do gem push "$gem_file"; done

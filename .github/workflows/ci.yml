@@ -1,0 +1,44 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-14]
+        ruby: ['3.2', '3.3', '3.4', '4.0']
+    runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '14.0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.94.0 --profile minimal && rustup default 1.94.0
+      - run: bundle install
+      - run: bundle exec rake compile
+      - run: cargo test --locked --manifest-path ext/forme_pdf/Cargo.toml
+      - run: bundle exec rspec
+      - run: bundle exec standardrb
+      - name: Build packages
+        if: matrix.ruby == '3.3'
+        run: |
+          ruby script/notices.rb
+          bundle exec rake 'package[source]'
+          bundle exec rake 'package[native]'
+      - name: Test isolated installed packages
+        if: matrix.ruby == '3.3'
+        run: ruby script/test_packages.rb
+      - uses: actions/upload-artifact@v4
+        if: matrix.ruby == '3.3'
+        with:
+          name: gems-${{ matrix.os }}
+          path: pkg/*.gem
+          if-no-files-found: error

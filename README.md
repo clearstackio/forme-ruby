@@ -63,3 +63,13 @@ CI matrix before a release is published. Source fallback does not imply support
 for every untested architecture. The gem is independent of EBA and eba_kit.
 
 License: MIT; upstream and bundled dependency notices accompany native packages.
+
+## Release workflow
+
+CI builds and clean-installs source and platform artifacts on Ubuntu 22.04
+(glibc 2.35 baseline) and macOS 14 ARM64. No Windows or musl binary is claimed.
+Before publishing, configure the `clearstackio/forme-ruby` repository's
+`release.yml` as a RubyGems trusted publisher under `ajaya`, with the `rubygems`
+GitHub environment. The manual release workflow accepts only a successful CI
+run for its exact main-branch commit. It publishes the three tested packages.
+See https://guides.rubygems.org/trusted-publishing/pushing-a-new-gem/.

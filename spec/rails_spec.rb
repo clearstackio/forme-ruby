@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "forme_pdf/rails"
 RSpec.describe FormePDF::Rails do
   it "renders explicitly without changing the caller response" do

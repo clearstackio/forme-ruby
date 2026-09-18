@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2"
   spec.metadata = {"source_code_uri" => spec.homepage, "changelog_uri" => "#{spec.homepage}/blob/main/CHANGELOG.md", "rubygems_mfa_required" => "true"}
-  spec.files = Dir["lib/**/*.rb", "ext/forme_pdf/{Cargo.toml,Cargo.lock,extconf.rb}", "ext/forme_pdf/src/**/*.rs", "README.md", "LICENSE", "CHANGELOG.md", "NOTICE"]
+  spec.files = Dir["lib/**/*.rb", "ext/forme_pdf/{Cargo.toml,Cargo.lock,extconf.rb}", "ext/forme_pdf/src/**/*.rs", "README.md", "LICENSE", "CHANGELOG.md", "NOTICE", "THIRD_PARTY_LICENSES.txt"]
   spec.require_paths = ["lib"]
   spec.extensions = ["ext/forme_pdf/extconf.rb"]
   spec.add_dependency "ffi", "~> 1.17"
