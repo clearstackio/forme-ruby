@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.ttf binary
+*.gem binary
+*.pdf binary
+THIRD_PARTY_LICENSES.txt linguist-generated=true

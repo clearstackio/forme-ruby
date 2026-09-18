@@ -1,0 +1,8 @@
+# Scoped reachability review: docs/security-exceptions.md (2026-09-18).
+# Re-review when the engine pin, features, or native API changes.
+[advisories]
+ignore = [
+  "RUSTSEC-2026-0195", # NsReader is not used by the locked engine.
+  "RUSTSEC-2026-0194", # SVG nodes cannot be constructed through the HTML API.
+  "RUSTSEC-2023-0071", # HTML conversion cannot enable PDF signing.
+]

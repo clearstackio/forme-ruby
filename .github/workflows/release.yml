@@ -1,0 +1,55 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful CI run ID for this exact main commit
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: rubygems-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: rubygems
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1
+        with:
+          ruby-version: '3.3'
+      - name: Verify tested commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" > /tmp/forme-ci-run.json
+          ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.run_id }}
+          pattern: gems-*
+          path: pkg
+          merge-multiple: true
+      - run: ruby script/ci/verify-release.rb
+      - name: Attest tested packages
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-path: pkg/*.gem
+      - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a
+      - name: Publish validated packages
+        run: |
+          for gem_file in pkg/*.gem; do gem push "$gem_file"; done

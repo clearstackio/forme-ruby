@@ -1,0 +1,5 @@
+forme-ruby is an independent binding, not an official Forme project.
+Forme: https://github.com/danmolitor/forme
+Pinned revision: f408920e632c59da0651b5b6d32f8c1397477673
+Forme is MIT licensed. Native distributions must include upstream and dependency
+license notices generated during their build (see third-party notices).

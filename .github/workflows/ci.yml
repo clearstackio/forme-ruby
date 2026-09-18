@@ -1,0 +1,200 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 6 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    name: Ruby ${{ matrix.ruby }} / ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+        ruby: ['3.2', '3.3', '3.4', '4.0']
+    runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '15.0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: rustup toolchain install 1.94.0 --profile minimal && rustup default 1.94.0
+      - run: bundle exec standardrb
+      - run: bundle exec rake compile
+      - run: cargo test --locked --manifest-path ext/forme_pdf/Cargo.toml
+      - run: bundle exec rspec
+
+  package-linux:
+    name: Build Linux / glibc 2.28
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Build in pinned Red Hat UBI 8
+        run: |
+          docker run --rm --platform linux/amd64 --user 0 \
+            -v "$PWD:/work" -w /work \
+            registry.access.redhat.com/ubi8/ruby-33@sha256:5eb6e7843b98f77ad214b9a7ae1c0d6fb8a142fd41e493139c7d87ca15842231 \
+            bash script/ci/build-linux.sh
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: gems-linux
+          path: pkg/*.gem
+          if-no-files-found: error
+          retention-days: 14
+
+  package-macos:
+    name: Build macOS ARM
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '15.0'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - run: test "$(uname -m)" = arm64
+      - run: rustup toolchain install 1.94.0 --profile minimal && rustup default 1.94.0
+      - run: bundle exec rake compile
+      - run: ruby script/notices.rb
+      - run: bundle exec rake 'package[native]'
+      - run: ruby script/test_packages.rb
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: gems-macos
+          path: pkg/*.gem
+          if-no-files-found: error
+          retention-days: 14
+
+  linux-compatibility:
+    name: Native / ${{ matrix.distro }}
+    needs: package-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: rhel8
+            image: registry.access.redhat.com/ubi8/ruby-33@sha256:5eb6e7843b98f77ad214b9a7ae1c0d6fb8a142fd41e493139c7d87ca15842231
+          - distro: rhel9
+            image: registry.access.redhat.com/ubi9/ruby-33@sha256:95db6c621752017654a28c629416ac1b6326878fbfc9667989f19c96b33fa3d3
+          - distro: rhel10
+            image: registry.access.redhat.com/ubi10/ruby-33@sha256:dc4164449ad3e24ca94b412b258c36541300ef5cb67090b4173191f5cf67ae1d
+          - distro: ubuntu24
+            image: ubuntu:24.04
+          - distro: ubuntu26
+            image: ubuntu:26.04
+          - distro: arch
+            image: archlinux:base
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: gems-linux
+          path: pkg
+      - name: Install the same native artifact and render without Rust
+        env:
+          IMAGE: ${{ matrix.image }}
+          DISTRO: ${{ matrix.distro }}
+        run: |
+          docker run --rm --platform linux/amd64 --user 0 \
+            -v "$PWD:/work:ro" -w /tmp "$IMAGE" \
+            bash /work/script/ci/test-linux.sh "$DISTRO"
+
+  linux-ruby-compatibility:
+    name: Native / Linux / Ruby ${{ matrix.ruby }}
+    needs: package-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['3.2', '3.3', '3.4', '4.0']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: gems-linux
+          path: pkg
+      - run: ruby script/test_packages.rb pkg/*-x86_64-linux-gnu.gem
+
+  macos-compatibility:
+    name: Native / ${{ matrix.os }} ARM / Ruby ${{ matrix.ruby }}
+    needs: package-macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-26]
+        ruby: ['3.2', '3.3', '3.4', '4.0']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: gems-macos
+          path: pkg
+      - run: test "$(uname -m)" = arm64
+      - run: ruby script/test_packages.rb
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - run: bundle exec bundler-audit check --update
+      - run: rustup toolchain install 1.94.0 --profile minimal && rustup default 1.94.0
+      - run: cargo install cargo-audit --version 0.22.2 --locked
+      - run: cargo audit --file ext/forme_pdf/Cargo.lock
+
+  required:
+    name: CI required
+    if: always()
+    needs: [test, package-linux, package-macos, linux-compatibility, linux-ruby-compatibility, macos-compatibility, audit]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every build, test and audit
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          python3 -c 'import json,os; results=json.loads(os.environ["RESULTS"]); assert results and all(x == "success" for x in results), results'
