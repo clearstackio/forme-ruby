@@ -34,10 +34,11 @@ PR jobs do not receive publishing credentials. Checkout does not persist tokens.
 6. Configure RubyGems trusted publishing exactly as [releasing](releasing.md)
    specifies. Do not store a long-lived publishing key in repository secrets.
 
-The existing remote has older history. The prepared local root commit replaces
-that history only after explicit authorization and consumer coordination. Enable
-force-push protection after that authorized initial transition. A backup local
-branch preserves the prior history. Never force-push just to make CI pass.
+The authorized initial history consolidation is complete. Remote branch
+`archive/pre-0.1.0-squash` preserves the old consumer pin. The `rubygems`
+environment is configured with a `main` branch deployment policy; a second
+reviewer and RubyGems trusted publishing remain separate setup tasks.
+Never force-push just to make CI pass.
 
 ## Release evidence
 

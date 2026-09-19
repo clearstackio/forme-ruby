@@ -26,18 +26,23 @@ Use a Ruby 3.2+ installation even when a distribution defaults to older Ruby.
 
 The macOS gem is built on Apple Silicon macOS 15 with a 15.0 deployment target
 and installed on macOS 15 and 26. Both native artifacts are also installed
-across CRuby 3.2, 3.3, 3.4 and 4.0. Hosted qualification of this prepared commit
-is pending. These tests establish installation/rendering compatibility, not
+across CRuby 3.2, 3.3, 3.4 and 4.0. The [0.1.0 release run](https://github.com/clearstackio/forme-ruby/actions/runs/35415089757)
+passed every qualification job. These tests establish installation/rendering compatibility, not
 identical pagination for every font and document.
 
-## Install before the first release
+## Install from GitHub
 
-Version 0.1.0 is not yet published to RubyGems. Add the Git dependency shown in
+Download the matching native gem and `SHA256SUMS` from the
+[0.1.0 release](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0).
+Check its digest with `shasum -a 256 <filename>` against the checksum file, then
+run `gem install ./<filename>`.
+
+Version 0.1.0 is not yet published to RubyGems. For Bundler, add the Git dependency shown in
 [README](../README.md) and run `bundle install`. Commit `Gemfile.lock` so builds
 use a reviewed revision. Compilation happens during installation; no compiler
 or dependency download runs during `require` or rendering.
 
-## Install a released version later
+## Install from RubyGems after registry publication
 
 After publication is confirmed, use:
 

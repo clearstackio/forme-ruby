@@ -9,16 +9,25 @@ WebAssembly or separate rendering service is needed.
 
 This is an independent MIT-licensed binding maintained by
 [ClearStack](https://github.com/clearstackio), not an official upstream project.
-**0.1.0 is in preparation; RubyGems publication is pending.**
+**[0.1.0 is available on GitHub](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0); RubyGems publication is pending.**
 
 ## Getting started
 
-Until the first RubyGems release, use the Git repository and commit the resolved
-lockfile. Git installation compiles the native extension and requires Rust/Cargo
-1.94.0, a linker and make:
+Download a native gem from the [release assets](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0)
+and install it without a compiler:
+
+```sh
+# Apple Silicon macOS 15+
+gem install ./forme-ruby-0.1.0-arm64-darwin.gem
+# Linux AMD64, glibc 2.28+
+gem install ./forme-ruby-0.1.0-x86_64-linux-gnu.gem
+```
+
+For Bundler before RubyGems publication, use the release tag and commit the
+resolved lockfile. Git installation requires Rust/Cargo 1.94.0, a linker and make:
 
 ```ruby
-gem "forme-ruby", github: "clearstackio/forme-ruby", branch: "main", require: "forme_pdf"
+gem "forme-ruby", github: "clearstackio/forme-ruby", tag: "v0.1.0", require: "forme_pdf"
 ```
 
 ```ruby
@@ -28,7 +37,7 @@ pdf = FormePDF.render_html("<h1>Hello from Ruby</h1>")
 File.binwrite("hello.pdf", pdf)
 ```
 
-Ruby 3.2 or later is required. Planned native packages target Apple Silicon macOS
+Ruby 3.2 or later is required. Native packages target Apple Silicon macOS
 15+ and Linux AMD64 glibc 2.28+ and need no compiler. Source installs require
 network access to locked upstream dependencies. See [installation](docs/installation.md).
 
@@ -39,8 +48,7 @@ network access to locked upstream dependencies. See [installation](docs/installa
 | `arm64-darwin` | Apple Silicon macOS 15 and 26 |
 | `x86_64-linux-gnu` | Red Hat UBI 8, 9 and 10; Ubuntu 24.04 and 26.04; Arch Linux rolling |
 
-These are the release CI targets; qualification of this prepared commit is
-pending. Red Hat testing uses official UBI images, not RHEL certification.
+Version 0.1.0 passed the [full release matrix](https://github.com/clearstackio/forme-ruby/actions/runs/35415089757). Red Hat testing uses official UBI images, not RHEL certification.
 Linux ARM64, Windows and Alpine/musl binaries are not provided. See the
 [installation guide](docs/installation.md) for Ruby and source-build requirements.
 

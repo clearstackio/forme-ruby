@@ -1,7 +1,7 @@
 # Preparing and Releasing Forme Ruby
 
 After reading this guide, you will know how to qualify source/native artifacts
-and which steps publish externally. **Current status: 0.1.0 is unreleased.**
+and which steps publish externally. **Current status: 0.1.0 is released on GitHub; RubyGems publication is pending.**
 Local preparation does not authorize a push, tag or RubyGems publication.
 
 ## Prepare locally
@@ -27,9 +27,9 @@ artifact renders on UBI 8/9/10, Ubuntu 24.04/26.04 and Arch rolling; the macOS
 artifact renders on macOS 15/26. See [installation](installation.md). Review the three intended artifacts: `ruby`,
 `arm64-darwin`, and `x86_64-linux-gnu`. No Windows or musl binary is claimed.
 
-The repository already has published history. Replacing it after a local root
-squash would be a remote history rewrite, requiring separate authorization and
-coordination with consumers. Keep the existing reachable consumer pin until then.
+The initial history consolidation is complete. Branch `archive/pre-0.1.0-squash`
+preserves the earlier history and existing consumer pin. Future releases should
+use normal commits without rewriting published history.
 
 Review [GitHub repository setup](github-setup.md) before enabling releases.
 
@@ -67,17 +67,17 @@ record the release date/tag. Partial publication cannot be overwritten: inspect
 which platforms succeeded before deciding how to recover. Update consumer
 Gemfiles only after the version is available and qualified.
 
-## Evidence and remaining gates
+## Release evidence and remaining gate
 
-The earlier `b6d287c` commit passed hosted Linux/macOS CI, including AlmaLinux 10.
-That is historical evidence, not approval of a new local squashed SHA. Hosted CI,
-trusted-publisher configuration and actual publication remain pending for the
-prepared release. No release workflow is run by local package tasks.
+[GitHub release 0.1.0](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0)
+contains the source gem, both native gems and SHA-256 checksums from
+[CI run 35415089757](https://github.com/clearstackio/forme-ruby/actions/runs/35415089757).
+Every job passed on commit `266628a20a0a52bad222c8f8e6d2277b08122896`, including
+UBI 10, Arch, both macOS versions and all supported Ruby versions. CodeQL also
+passed. Packages were downloaded and validated before release; the macOS native
+gem was additionally installed and rendered locally outside the checkout.
 
-Local preparation on 2026-09-18 verified macOS source/native installations and
-native Linux rendering in UBI 8/9, Ubuntu 24.04/26.04 and Arch. The UBI 8 build
-passed the glibc 2.28 symbol check. Arch's local QEMU run needed pacman's sandbox
-disabled; the committed hosted job uses its normal sandbox. UBI 10 could not
-start under the local emulator because it requires an x86-64-v3 CPU. Its hosted
-x86 check remains mandatory. These local results do not qualify the complete
-hosted matrix or authorize publication.
+The GitHub `rubygems` environment exists and allows deployment from `main`.
+RubyGems pending trusted-publisher configuration remains the external gate.
+No RubyGems publication has occurred. If `main` changes, qualify its exact commit
+again before dispatching the registry release workflow.
