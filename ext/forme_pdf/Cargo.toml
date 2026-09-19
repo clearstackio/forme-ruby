@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 forme-pdf-html = { git = "https://github.com/danmolitor/forme", rev = "f408920e632c59da0651b5b6d32f8c1397477673" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-base64 = "0.22"
+base64 = "0.23"
 ttf-parser = "0.25"
 [profile.release]
 panic = "unwind"
