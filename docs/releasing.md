@@ -53,7 +53,10 @@ for setup. No long-lived RubyGems API key is required by this workflow.
 ## Publish only with explicit authorization
 
 The manual `release.yml` workflow takes a successful CI run ID and verifies its
-commit, branch and workflow path against the release invocation. It downloads
+commit, branch and workflow path against the release invocation. To promote an
+existing GitHub release unchanged, also supply `release_tag`: the workflow
+requires successful main-branch CI for that tag commit, a published stable
+release, and byte-for-byte equality between CI gems and GitHub release assets. It downloads
 those tested artifacts and publishes them; it does not rebuild them at release
 time. Package validation requires exactly the three intended platforms and
 matching names/versions. A provenance attestation records the release workflow
@@ -79,5 +82,6 @@ gem was additionally installed and rendered locally outside the checkout.
 
 The GitHub `rubygems` environment exists and allows deployment from `main`.
 RubyGems pending trusted-publisher configuration remains the external gate.
-No RubyGems publication has occurred. If `main` changes, qualify its exact commit
-again before dispatching the registry release workflow.
+No RubyGems publication has occurred. Promote the existing release with
+`run_id=35415089757` and `release_tag=v0.1.0`. Without `release_tag`, qualify the
+exact current main commit before dispatching the registry release workflow.

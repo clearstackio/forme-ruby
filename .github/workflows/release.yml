@@ -3,8 +3,12 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: Successful CI run ID for this exact main commit
+        description: Successful CI run ID for the main commit or selected release tag
         required: true
+        type: string
+      release_tag:
+        description: Existing GitHub release tag to promote unchanged (optional)
+        required: false
         type: string
 permissions:
   contents: read
@@ -33,10 +37,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ inputs.run_id }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           [[ "$RUN_ID" =~ ^[0-9]+$ ]]
           gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" > /tmp/forme-ci-run.json
-          ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
+          if [[ -n "$RELEASE_TAG" ]]; then
+            [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+            gh release view "$RELEASE_TAG" --json isDraft,isPrerelease > /tmp/forme-release.json
+            ruby -rjson -e 'r = JSON.parse(File.read(ARGV[0])); abort "Require a published stable release" if r.fetch("isDraft") || r.fetch("isPrerelease")' /tmp/forme-release.json
+            RELEASE_SHA=$(gh api "repos/$GITHUB_REPOSITORY/commits/$RELEASE_TAG" --jq .sha)
+            GITHUB_SHA="$RELEASE_SHA" ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
+          else
+            ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
+          fi
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           github-token: ${{ github.token }}
@@ -45,6 +58,16 @@ jobs:
           path: pkg
           merge-multiple: true
       - run: ruby script/ci/verify-release.rb
+      - name: Match published GitHub packages
+        if: inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          gh release download "$RELEASE_TAG" --pattern '*.gem' --dir /tmp/github-release
+          for gem_file in pkg/*.gem; do
+            cmp "$gem_file" "/tmp/github-release/$(basename "$gem_file")"
+          done
       - name: Attest tested packages
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
