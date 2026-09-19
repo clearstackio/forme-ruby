@@ -36,8 +36,9 @@ PR jobs do not receive publishing credentials. Checkout does not persist tokens.
 
 The authorized initial history consolidation is complete. Remote branch
 `archive/pre-0.1.0-squash` preserves the old consumer pin. The `rubygems`
-environment is configured with a `main` branch deployment policy; a second
-reviewer and RubyGems trusted publishing remain separate setup tasks.
+environment is configured with a `main` branch deployment policy, and RubyGems
+trusted publishing successfully published 0.1.0. A second reviewer remains a
+separate repository setup task.
 Never force-push just to make CI pass.
 
 ## Release evidence

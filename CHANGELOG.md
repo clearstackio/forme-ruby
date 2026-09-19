@@ -3,7 +3,8 @@
 ## 0.1.0 (2026-09-18)
 
 Released on [GitHub](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0)
-with source and native gems. RubyGems registry publication is pending.
+and [RubyGems](https://rubygems.org/gems/forme-ruby/versions/0.1.0)
+with identical source and native gems.
 
 ### Added
 
@@ -27,7 +28,8 @@ with source and native gems. RubyGems registry publication is pending.
 - Forme HTML 0.24.0 at `f408920e632c59da0651b5b6d32f8c1397477673`.
 - Build toolchain: Rust 1.94.0; target minimums macOS 15 and glibc 2.28.
 - Release commit `266628a` passed the full hosted platform matrix and CodeQL.
-- RubyGems registry publication is pending trusted-publisher configuration.
+- Published all three packages through trusted publishing; registry downloads
+  match the qualified CI and GitHub release artifacts byte-for-byte.
 
 ### Release preparation
 

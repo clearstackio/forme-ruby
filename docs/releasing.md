@@ -1,7 +1,7 @@
 # Preparing and Releasing Forme Ruby
 
 After reading this guide, you will know how to qualify source/native artifacts
-and which steps publish externally. **Current status: 0.1.0 is released on GitHub; RubyGems publication is pending.**
+and which steps publish externally. **Current status: 0.1.0 is published on GitHub and RubyGems.**
 Local preparation does not authorize a push, tag or RubyGems publication.
 
 ## Prepare locally
@@ -18,7 +18,7 @@ Local preparation does not authorize a push, tag or RubyGems publication.
    Previously successful CI does not qualify the new commit. Consumers must not
    lock to an unpublished SHA. Do not change remote history during local preparation.
 
-## Qualify the release commit later
+## Qualify the release commit
 
 After a separately authorized GitHub push, require successful `ci.yml` for that
 exact `main` commit. CI tests CRuby 3.2, 3.3, 3.4 and 4.0 on Ubuntu 24.04 and
@@ -33,7 +33,7 @@ use normal commits without rewriting published history.
 
 Review [GitHub repository setup](github-setup.md) before enabling releases.
 
-## Configure trusted publishing later
+## Configure trusted publishing
 
 Under the `ajaya` RubyGems account, configure a pending publisher for the new gem:
 
@@ -70,7 +70,7 @@ record the release date/tag. Partial publication cannot be overwritten: inspect
 which platforms succeeded before deciding how to recover. Update consumer
 Gemfiles only after the version is available and qualified.
 
-## Release evidence and remaining gate
+## Release evidence
 
 [GitHub release 0.1.0](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0)
 contains the source gem, both native gems and SHA-256 checksums from
@@ -81,7 +81,11 @@ passed. Packages were downloaded and validated before release; the macOS native
 gem was additionally installed and rendered locally outside the checkout.
 
 The GitHub `rubygems` environment exists and allows deployment from `main`.
-RubyGems pending trusted-publisher configuration remains the external gate.
-No RubyGems publication has occurred. Promote the existing release with
-`run_id=35415089757` and `release_tag=v0.1.0`. Without `release_tag`, qualify the
-exact current main commit before dispatching the registry release workflow.
+[Registry publication run 35415885728](https://github.com/clearstackio/forme-ruby/actions/runs/35415885728)
+succeeded through trusted publishing for all three platforms. Downloads from
+RubyGems matched the CI and GitHub release artifacts byte-for-byte. A fresh
+macOS ARM registry installation loaded the native library and rendered a PDF.
+
+The publisher is configured; do not recreate it for subsequent versions.
+Version 0.1.0 is already published and must not be pushed again. Use a new
+version for future releases and qualify its packages before publication.

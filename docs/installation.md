@@ -37,14 +37,9 @@ Download the matching native gem and `SHA256SUMS` from the
 Check its digest with `shasum -a 256 <filename>` against the checksum file, then
 run `gem install ./<filename>`.
 
-Version 0.1.0 is not yet published to RubyGems. For Bundler, add the Git dependency shown in
-[README](../README.md) and run `bundle install`. Commit `Gemfile.lock` so builds
-use a reviewed revision. Compilation happens during installation; no compiler
-or dependency download runs during `require` or rendering.
+## Install from RubyGems
 
-## Install from RubyGems after registry publication
-
-After publication is confirmed, use:
+Add to your Gemfile and run `bundle install`:
 
 ```ruby
 gem "forme-ruby", "~> 0.1.0", require: "forme_pdf"
