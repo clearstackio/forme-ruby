@@ -62,12 +62,13 @@ Pushing a `v*` tag publishes. `release.yml` runs on the tag and:
 6. signs each package with Sigstore and pushes it to RubyGems through trusted
    publishing with that attestation, then waits until RubyGems serves it.
 
-Tag only a `main` commit whose CI has passed, after the CHANGELOG entry is dated:
+This follows the RubyGems [trusted publishing release guide](https://guides.rubygems.org/trusted-publishing/releasing-gems/)
+and our other gems:
 
-```bash
-git tag -a vX.Y.Z -m "vX.Y.Z" <main-commit>
-git push origin vX.Y.Z
-```
+1. Update `VERSION` in `lib/forme_pdf/version.rb`.
+2. Move the Unreleased CHANGELOG entries under the new version and date.
+3. Commit to `main` and wait for CI to pass on that commit.
+4. Tag and push: `git tag vX.Y.Z && git push origin main vX.Y.Z`.
 
 Treat the tag push as publication, not a dry run. Afterward, verify all three
 platforms and their attestations on RubyGems and install from RubyGems in a clean
