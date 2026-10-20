@@ -5,7 +5,7 @@ Use synthetic documents and assets that can be redistributed.
 
 ## Set up a checkout
 
-Use CRuby 3.2+ and Rust/Cargo 1.94.0, a native linker and make. From the repository:
+Use CRuby 3.3+ and Rust/Cargo 1.94.0, a native linker and make. From the repository:
 
 ```bash
 bundle install

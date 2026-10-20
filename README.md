@@ -35,7 +35,7 @@ pdf = FormePDF.render_html("<h1>Hello from Ruby</h1>")
 File.binwrite("hello.pdf", pdf)
 ```
 
-Ruby 3.2 or later is required. Native packages target Apple Silicon macOS
+Ruby 3.3 or later is required. Native packages target Apple Silicon macOS
 15+ and Linux AMD64 glibc 2.28+ and need no compiler. Source installs require
 network access to locked upstream dependencies. See [installation](docs/installation.md).
 
@@ -44,7 +44,7 @@ network access to locked upstream dependencies. See [installation](docs/installa
 | Native gem | Qualification environments |
 | --- | --- |
 | `arm64-darwin` | Apple Silicon macOS 15 and 26 |
-| `x86_64-linux-gnu` | Red Hat UBI 8, 9 and 10; Ubuntu 24.04 and 26.04; Arch Linux rolling |
+| `x86_64-linux-gnu` | Red Hat UBI 8, 9 and 10; Ubuntu 26.04; Arch Linux rolling |
 
 Version 0.1.0 passed the [full release matrix](https://github.com/clearstackio/forme-ruby/actions/runs/35415089757). Red Hat testing uses official UBI images, not RHEL certification.
 Linux ARM64, Windows and Alpine/musl binaries are not provided. See the

@@ -2,7 +2,7 @@
 set -euo pipefail
 case "${1:?distribution required}" in
   rhel8|rhel9|rhel10) ;; # Official Red Hat UBI images already provide Ruby 3.3.
-  ubuntu24|ubuntu26)
+  ubuntu26)
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq
     apt-get install -y --no-install-recommends ruby ca-certificates
@@ -12,7 +12,7 @@ case "${1:?distribution required}" in
     ;;
   *) echo "Unknown distribution" >&2; exit 1 ;;
 esac
-ruby -e 'abort "Ruby 3.2+ required" if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.2")'
+ruby -e 'abort "Ruby 3.3+ required" if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.3")'
 if command -v cargo >/dev/null; then
   echo "Compatibility image must not contain Rust/Cargo" >&2
   exit 1

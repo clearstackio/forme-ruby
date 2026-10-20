@@ -21,9 +21,9 @@ Local preparation does not authorize a push, tag or RubyGems publication.
 ## Qualify the release commit
 
 After a separately authorized GitHub push, require successful `ci.yml` for that
-exact `main` commit. CI tests CRuby 3.2, 3.3, 3.4 and 4.0 on Ubuntu 24.04 and
+exact `main` commit. CI tests CRuby 3.3, 3.4 and 4.0 on Ubuntu 24.04 and
 macOS 15, builds source/native packages and clean-installs them. The same Linux
-artifact renders on UBI 8/9/10, Ubuntu 24.04/26.04 and Arch rolling; the macOS
+artifact renders on UBI 8/9/10, Ubuntu 26.04 and Arch rolling; the macOS
 artifact renders on macOS 15/26. See [installation](installation.md). Review the three intended artifacts: `ruby`,
 `arm64-darwin`, and `x86_64-linux-gnu`. No Windows or musl binary is claimed.
 

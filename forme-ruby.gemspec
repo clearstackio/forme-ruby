@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description = "Independent Ruby bindings for the Rust Forme HTML renderer. No browser, Node.js, WebAssembly or separate rendering service."
   spec.homepage = "https://github.com/clearstackio/forme-ruby"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2"
+  spec.required_ruby_version = ">= 3.3"
   spec.metadata = {
     "source_code_uri" => spec.homepage,
     "documentation_uri" => "#{spec.homepage}/blob/main/docs/README.md",

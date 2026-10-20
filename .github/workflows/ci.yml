@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-15]
-        ruby: ['3.2', '3.3', '3.4', '4.0']
+        ruby: ['3.3', '3.4', '4.0']
     runs-on: ${{ matrix.os }}
     env:
       MACOSX_DEPLOYMENT_TARGET: '15.0'
@@ -100,8 +100,6 @@ jobs:
             image: registry.access.redhat.com/ubi9/ruby-33@sha256:95db6c621752017654a28c629416ac1b6326878fbfc9667989f19c96b33fa3d3
           - distro: rhel10
             image: registry.access.redhat.com/ubi10/ruby-33@sha256:dc4164449ad3e24ca94b412b258c36541300ef5cb67090b4173191f5cf67ae1d
-          - distro: ubuntu24
-            image: ubuntu:24.04
           - distro: ubuntu26
             image: ubuntu:26.04
           - distro: arch
@@ -131,7 +129,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['3.2', '3.3', '3.4', '4.0']
+        ruby: ['3.3', '3.4', '4.0']
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -154,7 +152,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-15, macos-26]
-        ruby: ['3.2', '3.3', '3.4', '4.0']
+        ruby: ['3.3', '3.4', '4.0']
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
