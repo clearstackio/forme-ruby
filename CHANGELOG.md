@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Breaking
+
+- File image sources (`/`, `./`, `../`) are omitted with a warning unless the new
+  `image_root:` option names a directory containing them. Allowed files are
+  inlined after checking they are regular files of at most 64 MiB.
+- Font `weight` must be an Integer from 1 to 1000 and `italic` true or false;
+  invalid values and non-UTF-8 `css:` or font families raise `ArgumentError`.
+- `FormePDF::Rails#render_forme_pdf` is private, so Rails does not expose it as
+  a controller action. Call it from your own actions as before.
+
+### Fixed
+
+- Rendering deeply nested HTML on a non-main Ruby thread no longer overflows the
+  thread's stack and hangs the process. Renders run on a native thread with a
+  64 MiB stack, and documents nested deeper than 512 elements raise
+  `FormePDF::RenderError`.
+- Failed source builds show Cargo's diagnostics instead of only
+  "Forme native build failed".
+
 ### Changed
 
 - Require Ruby 3.3 or later. The Ubuntu 24.04 package job installs a pinned
@@ -16,6 +35,8 @@
   the tagged commit's CI packages unchanged, attaches them with `SHA256SUMS` to
   the GitHub release, and pushes each to RubyGems with a Sigstore attestation.
 - Re-review native audit exceptions against the new engine revision.
+- CI installs the source gem on macOS as well as Linux, verifies the rustup
+  installer checksum and pins the Ubuntu test images by digest.
 
 ## 0.1.0 (2026-09-18)
 

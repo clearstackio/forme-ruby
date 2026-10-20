@@ -299,7 +299,10 @@ name = "forme-pdf-native"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "forme-pdf",
  "forme-pdf-html",
+ "html5ever",
+ "markup5ever_rcdom",
  "serde",
  "serde_json",
  "ttf-parser",

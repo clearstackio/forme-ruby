@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require "forme_pdf"
+require "open3"
+require "rbconfig"
+require "timeout"
+require "tmpdir"
 
 RSpec.describe FormePDF do
   it "renders a binary PDF and preserves metadata" do
@@ -79,6 +83,76 @@ RSpec.describe FormePDF do
     expect(result.pdf).to include("/FontFile2")
     expect(result.pdf).to include("/Subtype /Image")
     expect(result.warnings).to eq([])
+  end
+
+  it "renders deeply nested HTML from a non-main thread" do
+    script = <<~RUBY
+      require "forme_pdf"
+      nested = ->(depth) { "<div>" * depth + "x" + "</div>" * depth }
+      pdf = Thread.new { FormePDF.render_html(nested.call(200)) }.value
+      abort "no PDF" unless pdf.start_with?("%PDF-")
+      begin
+        Thread.new { Thread.current.report_on_exception = false; FormePDF.render_html(nested.call(5_000)) }.value
+        abort "excess nesting rendered"
+      rescue FormePDF::RenderError => e
+        abort e.message unless e.message.include?("nesting")
+      end
+      puts "ok"
+    RUBY
+    output, errors, status = Timeout.timeout(120) { Open3.capture3(RbConfig.ruby, "-I", File.expand_path("../lib", __dir__), "-e", script) }
+    expect(output).to eq("ok\n"), errors
+    expect(status).to be_success
+  end
+
+  it "rejects invalid font weight and italic values" do
+    font = File.binread(File.join(__dir__, "fixtures/LiberationSans-Regular.ttf"))
+    [{weight: 2.5}, {weight: 0}, {weight: 1001}, {italic: "yes"}].each do |bad|
+      expect { described_class.render_html("hi", fonts: [{family: "Report", data: font, **bad}]) }.to raise_error(ArgumentError)
+    end
+  end
+
+  it "rejects invalid UTF-8 CSS and font families" do
+    font = File.binread(File.join(__dir__, "fixtures/LiberationSans-Regular.ttf"))
+    expect { described_class.render_html("hi", css: "\xff".b) }.to raise_error(ArgumentError)
+    expect { described_class.render_html("hi", fonts: [{family: "\xff".b, data: font}]) }.to raise_error(ArgumentError)
+    expect(described_class.render_html("hi", css: "p { color: red; }".encode("UTF-16LE"))).to start_with("%PDF-")
+  end
+
+  describe "local images" do
+    let(:png) { "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==".unpack1("m") }
+
+    it "omits file images unless an image root allows them" do
+      Dir.mktmpdir do |root|
+        File.binwrite(File.join(root, "logo.png"), png)
+        html = "<img width='10' height='10' src='#{root}/logo.png'>"
+        refused = described_class.render_html_result(html)
+        expect(refused.pdf).not_to include("/Subtype /Image")
+        expect(refused.warnings.join).to include("image_root")
+        allowed = described_class.render_html_result("<img width='10' height='10' src='./logo.png'>", image_root: root)
+        expect(allowed.pdf).to include("/Subtype /Image")
+        expect(allowed.warnings).to eq([])
+      end
+    end
+
+    it "refuses files outside the image root and non-regular files" do
+      Dir.mktmpdir do |root|
+        Dir.mktmpdir do |outside|
+          File.binwrite(File.join(outside, "secret.png"), png)
+          File.symlink(File.join(outside, "secret.png"), File.join(root, "link.png"))
+          ["#{outside}/secret.png", "./link.png", "../#{File.basename(outside)}/secret.png", "/dev/zero"].each do |src|
+            result = described_class.render_html_result("<img width='10' height='10' src='#{src}'>", image_root: root)
+            expect(result.pdf).not_to include("/Subtype /Image")
+            expect(result.warnings.join).to include("Local image omitted")
+            expect(result.warnings.join).not_to include(outside)
+          end
+        end
+      end
+    end
+
+    it "requires an existing image root directory" do
+      expect { described_class.render_html("hi", image_root: 1) }.to raise_error(ArgumentError)
+      expect { described_class.render_html("hi", image_root: "/nonexistent/forme") }.to raise_error(ArgumentError)
+    end
   end
 
   it "destroys native result when copying PDF bytes fails" do

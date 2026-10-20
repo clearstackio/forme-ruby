@@ -5,6 +5,8 @@ require "forme_pdf"
 module FormePDF
   # Explicitly include this module in an ActionController; no Railtie or middleware.
   module Rails
+    private
+
     # Render a caller-selected Rails template into binary PDF bytes.
     # The controller retains responsibility for authorization and send_data.
     def render_forme_pdf(template:, layout:, locals: {}, **options)

@@ -18,8 +18,11 @@ sandbox for arbitrary HTML. See [SECURITY](../SECURITY.md).
 
 ## Verify the boundaries
 
-`ext/forme_pdf/src/lib.rs` accepts only CSS and fonts, rejects unknown options,
-and calls `forme_pdf_html::render_html` with default HTML options. In the pinned
+`ext/forme_pdf/src/lib.rs` accepts only CSS, fonts and an image root, rejects
+unknown options, and reproduces `forme_pdf_html::render_html` with default HTML
+options: `html_to_document`, then `forme::render_with_options`. Between the two
+it replaces file image sources with data URIs or empties them, so the engine
+never reads files itself; image bytes still reach only the image loader. In the pinned
 upstream tree, `html/src/dom.rs` parses with html5ever. `html/src/map.rs` has no
 `NodeKind::Svg` construction and initializes `certification: None`.
 `engine/src/image_loader.rs` accepts JPEG, PNG and WebP, so an SVG image cannot

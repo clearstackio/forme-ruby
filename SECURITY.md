@@ -1,7 +1,9 @@
 # Security
 
-Render trusted HTML and caller-selected assets only. Forme can read local image
-paths and consumes CPU/memory in the host process. It is not an HTML sandbox;
+Render trusted HTML and caller-selected assets only. Local image files are read
+only inside a caller-supplied `image_root:`, at most 64 MiB each. Rendering
+consumes CPU/memory in the host process, and some layouts, such as deeply nested
+tables, can take far longer than their size suggests. It is not an HTML sandbox;
 thread cancellation is not a reliable rendering timeout.
 
 Keep confidential documents out of logs and public issue attachments. Use a

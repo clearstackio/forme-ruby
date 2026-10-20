@@ -20,8 +20,22 @@ ASCII-8BIT String. Always write with `File.binwrite`.
 
 Forme supports a subset of HTML and print CSS, not browser layout or JavaScript.
 Use dedicated print styles and inspect the resulting pages. Inline CSS or pass
-`css:`; embed images as data URIs. The binding does not fetch remote stylesheets
-or fonts. Local image paths are possible, so use trusted input only.
+`css:`; embed images as data URIs. The binding does not fetch remote stylesheets,
+fonts or images.
+
+Image sources starting with `/`, `./` or `../` are files. They are omitted with a
+warning unless you pass `image_root:`, a directory that must contain them:
+
+```ruby
+pdf = FormePDF.render_html(
+  '<img src="./logo.png" width="120">',
+  image_root: Rails.root.join("app/assets/images")
+)
+```
+
+Relative paths resolve against `image_root`; absolute paths and symlinks must
+resolve inside it. Each file must be a regular PNG, JPEG or WebP file of at most
+64 MiB. Warnings name the reason, never the path.
 
 Supply TTF font bytes explicitly:
 
@@ -32,9 +46,10 @@ pdf = FormePDF.render_html(
 )
 ```
 
-`css:` and `fonts:` are the supported rendering keywords. Font entries accept
-`family`, `data`, `weight` (default 400) and `italic` (default false). Unknown
-options fail. Register the weights/styles your document needs and check the PDF.
+`css:`, `fonts:` and `image_root:` are the supported rendering keywords. Font
+entries accept `family`, `data`, `weight` (an Integer from 1 to 1000, default
+400) and `italic` (true or false, default false). Unknown or invalid options
+raise `ArgumentError`. Register the weights/styles your document needs and check the PDF.
 
 ## Inspect diagnostics
 
@@ -52,12 +67,16 @@ send sensitive document content or diagnostics to public logs.
 ## Handle errors and concurrency
 
 `FormePDF::LoadError` and `FormePDF::RenderError` inherit `FormePDF::Error`.
-Invalid caller arguments can raise `ArgumentError` or encoding errors. Avoid
+Invalid caller arguments, including text that is not valid UTF-8, raise
+`ArgumentError`. Documents nested more than 512 elements deep raise
+`FormePDF::RenderError` instead of rendering. Avoid
 rescuing everything and returning an HTML success response as if it were a PDF.
 
 Each render owns independent native result storage. Ruby copies the bytes and
 frees that result even when copying or decoding fails. Native calls release the
-Ruby lock; concurrent callers do not share output buffers. Ruby interruption is
+Ruby lock and render on a native thread with its own 64 MiB stack, so deep
+documents behave the same on Puma, Sidekiq and `Thread.new` threads as on the
+main thread. Concurrent callers do not share output buffers. Ruby interruption is
 masked during native ownership, so thread cancellation is not a render deadline.
 Use process-level resource limits for large or hostile inputs. The API is not a
 sandbox and exposes no per-render timeout.

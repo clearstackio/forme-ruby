@@ -65,7 +65,7 @@ Rails is optional. The [Rails guide](docs/rails.md) also covers the opt-in
 - [Release guide](docs/releasing.md): package qualification and future publication.
 - [Changelog](CHANGELOG.md), [license](LICENSE) and [third-party notices](THIRD_PARTY_LICENSES.txt).
 
-Use trusted HTML and assets. The engine can read local image paths and is not a
-sandbox for untrusted documents. See [security](SECURITY.md). Report reproducible
+Use trusted HTML and assets. Local image files are read only inside an explicit
+`image_root:`, and the engine is not a sandbox for untrusted documents. See [security](SECURITY.md). Report reproducible
 bugs through [GitHub issues](https://github.com/clearstackio/forme-ruby/issues)
 with synthetic input, Ruby/platform versions and renderer diagnostics.

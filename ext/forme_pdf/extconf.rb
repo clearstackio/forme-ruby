@@ -9,8 +9,9 @@ require "tempfile"
 keep_build = ARGV.delete("--keep-build")
 Dir.chdir(__dir__) do
   abort "forme-ruby source installation requires Rust/Cargo. Install a supported platform gem or install Rust first." unless system("cargo", "--version", out: File::NULL)
-  output, status = Open3.capture2("cargo", "build", "--locked", "--release", "--message-format=json", "--target-dir", File.join(__dir__, "target"), "--manifest-path", File.join(__dir__, "Cargo.toml"))
-  abort "Forme native build failed" unless status.success?
+  output, status = Open3.capture2("cargo", "build", "--locked", "--release", "--message-format=json-render-diagnostics", "--target-dir", File.join(__dir__, "target"), "--manifest-path", File.join(__dir__, "Cargo.toml"))
+  # Diagnostics render to stderr; stdout carries only artifact records.
+  abort "Forme native build failed; see the Cargo errors above" unless status.success?
   extension = RbConfig::CONFIG["host_os"].include?("darwin") ? "dylib" : "so"
   artifacts = output.lines.filter_map do |line|
     record = JSON.parse(line)
