@@ -1,28 +1,23 @@
+# Publishes to rubygems.org with trusted publishing (OIDC, no API key) and
+# Sigstore attestations when a `v*` tag matching version.rb is pushed. It
+# promotes the three packages built and qualified by the successful main-branch
+# CI run for the tagged commit; it never rebuilds them. The rubygems.org trusted
+# publisher names this workflow and the `rubygems` environment.
 name: Release
 on:
-  workflow_dispatch:
-    inputs:
-      run_id:
-        description: Successful CI run ID for the main commit or selected release tag
-        required: true
-        type: string
-      release_tag:
-        description: Existing GitHub release tag to promote unchanged (optional)
-        required: false
-        type: string
-permissions:
-  contents: read
+  push:
+    tags: ['v*']
+permissions: {}
 concurrency:
   group: rubygems-release
   cancel-in-progress: false
 jobs:
-  publish:
-    if: github.ref == 'refs/heads/main'
+  release:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment: rubygems
     permissions:
-      contents: read
+      contents: write
       actions: read
       id-token: write
       attestations: write
@@ -33,46 +28,50 @@ jobs:
       - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1
         with:
           ruby-version: '3.3'
-      - name: Verify tested commit
+          rubygems: '4.0.13'
+      - name: Check the tag matches the version
+        run: |
+          version="$(ruby -Ilib -e 'require "forme_pdf/version"; print FormePDF::VERSION')"
+          test "$GITHUB_REF_NAME" = "v$version" || { echo "Tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - name: Find the qualified CI run for the tagged commit
+        id: ci
         env:
           GH_TOKEN: ${{ github.token }}
-          RUN_ID: ${{ inputs.run_id }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" > /tmp/forme-ci-run.json
-          if [[ -n "$RELEASE_TAG" ]]; then
-            [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
-            gh release view "$RELEASE_TAG" --json isDraft,isPrerelease > /tmp/forme-release.json
-            ruby -rjson -e 'r = JSON.parse(File.read(ARGV[0])); abort "Require a published stable release" if r.fetch("isDraft") || r.fetch("isPrerelease")' /tmp/forme-release.json
-            RELEASE_SHA=$(gh api "repos/$GITHUB_REPOSITORY/commits/$RELEASE_TAG" --jq .sha)
-            GITHUB_SHA="$RELEASE_SHA" ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
-          else
-            ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
-          fi
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$GITHUB_SHA&branch=main&status=success&per_page=1" \
+            --jq '.workflow_runs[0]' > /tmp/forme-ci-run.json
+          ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
+          echo "run_id=$(ruby -rjson -e 'print JSON.parse(File.read(ARGV[0])).fetch("id")' /tmp/forme-ci-run.json)" >> "$GITHUB_OUTPUT"
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           github-token: ${{ github.token }}
-          run-id: ${{ inputs.run_id }}
+          run-id: ${{ steps.ci.outputs.run_id }}
           pattern: gems-*
           path: pkg
           merge-multiple: true
       - run: ruby script/ci/verify-release.rb
-      - name: Match published GitHub packages
-        if: inputs.release_tag != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: |
-          gh release download "$RELEASE_TAG" --pattern '*.gem' --dir /tmp/github-release
-          for gem_file in pkg/*.gem; do
-            cmp "$gem_file" "/tmp/github-release/$(basename "$gem_file")"
-          done
       - name: Attest tested packages
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
           subject-path: pkg/*.gem
-      - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a
-      - name: Publish validated packages
+      - name: Publish the GitHub release, or match an existing one
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          for gem_file in pkg/*.gem; do gem push "$gem_file"; done
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release download "$GITHUB_REF_NAME" --pattern '*.gem' --dir /tmp/github-release
+            for gem_file in pkg/*.gem; do cmp "$gem_file" "/tmp/github-release/$(basename "$gem_file")"; done
+          else
+            (cd pkg && sha256sum -- *.gem > SHA256SUMS)
+            gh release create "$GITHUB_REF_NAME" pkg/*.gem pkg/SHA256SUMS --verify-tag \
+              --title "$GITHUB_REF_NAME" --notes "See the [changelog](https://github.com/$GITHUB_REPOSITORY/blob/main/CHANGELOG.md)."
+          fi
+      - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
+      - name: Sign and publish the tested packages
+        run: |
+          for gem_file in pkg/*.gem; do
+            gem exec sigstore-cli:0.2.3 sign "$gem_file" --bundle "$gem_file.sigstore.json"
+            gem push "$gem_file" --attestation "$gem_file.sigstore.json"
+          done
+      - name: Wait for the release to propagate
+        run: gem exec rubygems-await:0.5.4 pkg/*.gem

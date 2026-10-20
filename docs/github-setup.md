@@ -28,7 +28,7 @@ PR jobs do not receive publishing credentials. Checkout does not persist tokens.
    pull requests can be reviewed. Do not silently bypass review to unblock them.
 4. Allow only reviewed Actions, keep the default workflow token read-only, and
    disable Actions creating or approving pull requests. Keep fork approval on.
-5. Create environment `rubygems`, restrict deployment to `main`, and configure a
+5. Create environment `rubygems`, restrict deployment to `v*` tags, and configure a
    trusted maintainer as required reviewer with self-review prevented. Confirm
    an eligible second reviewer exists before enabling this requirement.
 6. Configure RubyGems trusted publishing exactly as [releasing](releasing.md)
@@ -36,7 +36,8 @@ PR jobs do not receive publishing credentials. Checkout does not persist tokens.
 
 The authorized initial history consolidation is complete. Remote branch
 `archive/pre-0.1.0-squash` preserves the old consumer pin. The `rubygems`
-environment is configured with a `main` branch deployment policy, and RubyGems
+environment was configured with a `main` branch deployment policy for the manual
+0.1.0 release; change it to `v*` tags before tagging the next version. RubyGems
 trusted publishing successfully published 0.1.0. A second reviewer remains a
 separate repository setup task.
 Never force-push just to make CI pass.
@@ -48,8 +49,8 @@ audit fails or is skipped. Linux packages are built against glibc 2.28 and check
 for newer symbol requirements. Compatibility jobs install the same artifact,
 not a newly rebuilt library.
 
-The manual release workflow accepts only a successful CI run from this repository,
-for the exact main commit. It validates package names, versions, platforms and
+The tag-triggered release workflow accepts only a successful CI run from this
+repository, for the exact main commit the tag points to. It validates package names, versions, platforms and
 license files before trusted publication, and records an attestation for the
 promotion workflow. Keep the successful CI URL with release notes. GitHub
 settings, hosted matrix success and RubyGems setup must be confirmed separately;

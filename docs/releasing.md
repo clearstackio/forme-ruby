@@ -50,23 +50,30 @@ for setup. No long-lived RubyGems API key is required by this workflow.
 
 ## Publish only with explicit authorization
 
-The manual `release.yml` workflow takes a successful CI run ID and verifies its
-commit, branch and workflow path against the release invocation. To promote an
-existing GitHub release unchanged, also supply `release_tag`: the workflow
-requires successful main-branch CI for that tag commit, a published stable
-release, and byte-for-byte equality between CI gems and GitHub release assets. It downloads
-those tested artifacts and publishes them; it does not rebuild them at release
-time. Package validation requires exactly the three intended platforms and
-matching names/versions. A provenance attestation records the release workflow
-that promotes those artifacts; it does not replace the linked CI build evidence.
-Treat dispatching it as publication, not a dry run.
+Pushing a `v*` tag publishes. `release.yml` runs on the tag and:
 
-Before dispatch, confirm the version is available, the package inventory is
-correct and all three tested artifacts belong to the intended commit. Afterward,
-verify all platforms on RubyGems, install from RubyGems in clean environments and
-record the release date/tag. Partial publication cannot be overwritten: inspect
-which platforms succeeded before deciding how to recover. Update consumer
-Gemfiles only after the version is available and qualified.
+1. checks the tag equals `v` plus `FormePDF::VERSION`;
+2. finds the successful `ci.yml` run on `main` for the tagged commit and
+   downloads its three packages, rebuilding nothing;
+3. validates names, versions, platforms, license files and build hooks;
+4. records a GitHub build-provenance attestation for those packages;
+5. creates the GitHub release with the packages and `SHA256SUMS`, or, when the
+   release already exists, requires its packages to match byte-for-byte;
+6. signs each package with Sigstore and pushes it to RubyGems through trusted
+   publishing with that attestation, then waits until RubyGems serves it.
+
+Tag only a `main` commit whose CI has passed, after the CHANGELOG entry is dated:
+
+```bash
+git tag -a vX.Y.Z -m "vX.Y.Z" <main-commit>
+git push origin vX.Y.Z
+```
+
+Treat the tag push as publication, not a dry run. Afterward, verify all three
+platforms and their attestations on RubyGems and install from RubyGems in a clean
+environment. Partial publication cannot be overwritten: inspect which platforms
+succeeded before deciding how to recover. Update consumer Gemfiles only after
+the version is available and qualified.
 
 ## Release evidence
 

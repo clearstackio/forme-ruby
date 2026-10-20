@@ -12,6 +12,9 @@
   no longer inherit `<body>` color and font.
 - Allow the `json` 3.x runtime dependency.
 - Refresh locked Rust and development dependencies and regenerate third-party notices.
+- Publish on a `v*` tag push instead of a manual dispatch. The release promotes
+  the tagged commit's CI packages unchanged, attaches them with `SHA256SUMS` to
+  the GitHub release, and pushes each to RubyGems with a Sigstore attestation.
 - Re-review native audit exceptions against the new engine revision.
 
 ## 0.1.0 (2026-09-18)

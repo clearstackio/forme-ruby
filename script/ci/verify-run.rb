@@ -2,7 +2,7 @@
 
 require "json"
 
-run = JSON.parse(File.read(ARGV.fetch(0)))
+run = JSON.parse(File.read(ARGV.fetch(0))) || {}
 valid = run["conclusion"] == "success" &&
   run["head_sha"] == ENV.fetch("GITHUB_SHA") &&
   run["head_branch"] == "main" &&
