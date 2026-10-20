@@ -1,12 +1,12 @@
 # Reviewing Native Dependency Advisories
 
 After reading this guide, you will understand the current audit exceptions and
-when they must be reconsidered. Review date: 2026-09-18.
+when they must be reconsidered. Review date: 2026-10-20.
 
 ## Scope
 
 These exceptions acknowledge vulnerable dependencies; they do not patch them.
-They apply only to Forme revision `f408920e632c59da0651b5b6d32f8c1397477673`,
+They apply only to Forme 0.28.0 revision `b97dc101b705ea5d7fea6fb1b20fabfb5bd2d63d`,
 the locked dependency graph and the HTML-only Ruby API. Rendering is not a
 sandbox for arbitrary HTML. See [SECURITY](../SECURITY.md).
 

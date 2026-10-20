@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
   spec.extensions = ["ext/forme_pdf/extconf.rb"]
   spec.add_dependency "ffi", "~> 1.17"
   spec.add_dependency "base64", "~> 0.2"
-  spec.add_dependency "json", ">= 2.0", "< 3"
+  spec.add_dependency "json", ">= 2.0", "< 4"
 end

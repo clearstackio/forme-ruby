@@ -1,4 +1,4 @@
-# Scoped reachability review: docs/security-exceptions.md (2026-09-18).
+# Scoped reachability review: docs/security-exceptions.md (2026-10-20).
 # Re-review when the engine pin, features, or native API changes.
 [advisories]
 ignore = [

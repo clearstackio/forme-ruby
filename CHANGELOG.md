@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Update the native engine to Forme HTML 0.28.0 at
+  `b97dc101b705ea5d7fea6fb1b20fabfb5bd2d63d`; running headers and footers
+  no longer inherit `<body>` color and font.
+- Allow the `json` 3.x runtime dependency.
+- Refresh locked Rust and development dependencies and regenerate third-party notices.
+- Re-review native audit exceptions against the new engine revision.
+
 ## 0.1.0 (2026-09-18)
 
 Released on [GitHub](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0)

@@ -2,5 +2,5 @@
 
 module FormePDF
   VERSION = "0.1.0"
-  ENGINE_REVISION = "f408920e632c59da0651b5b6d32f8c1397477673"
+  ENGINE_REVISION = "b97dc101b705ea5d7fea6fb1b20fabfb5bd2d63d"
 end
