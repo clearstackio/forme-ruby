@@ -100,6 +100,8 @@ jobs:
             image: registry.access.redhat.com/ubi9/ruby-33@sha256:95db6c621752017654a28c629416ac1b6326878fbfc9667989f19c96b33fa3d3
           - distro: rhel10
             image: registry.access.redhat.com/ubi10/ruby-33@sha256:dc4164449ad3e24ca94b412b258c36541300ef5cb67090b4173191f5cf67ae1d
+          - distro: ubuntu24
+            image: ubuntu:24.04
           - distro: ubuntu26
             image: ubuntu:26.04
           - distro: arch

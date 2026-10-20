@@ -35,4 +35,4 @@ Local verification does not establish hosted CI success for a rewritten SHA.
 Audit exceptions in `.cargo/audit.toml` apply only to the reviewed upstream pin
 and HTML API. Re-review their reachability before changing the pin, Cargo
 features or exported options; see [the rationale](docs/security-exceptions.md).
-Keep the native qualification matrix and installation guide synchronized.
+Keep the requirements in the installation guide backed by the CI qualification matrix.

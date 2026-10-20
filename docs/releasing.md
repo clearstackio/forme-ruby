@@ -21,11 +21,9 @@ Local preparation does not authorize a push, tag or RubyGems publication.
 ## Qualify the release commit
 
 After a separately authorized GitHub push, require successful `ci.yml` for that
-exact `main` commit. CI tests CRuby 3.3, 3.4 and 4.0 on Ubuntu 24.04 and
-macOS 15, builds source/native packages and clean-installs them. The same Linux
-artifact renders on UBI 8/9/10, Ubuntu 26.04 and Arch rolling; the macOS
-artifact renders on macOS 15/26. See [installation](installation.md). Review the three intended artifacts: `ruby`,
-`arm64-darwin`, and `x86_64-linux-gnu`. No Windows or musl binary is claimed.
+exact `main` commit, including every package installation job. Review the three
+intended artifacts: `ruby`, `arm64-darwin` and `x86_64-linux-gnu`. The
+[installation requirements](installation.md) must match what CI qualifies.
 
 The initial history consolidation is complete. Branch `archive/pre-0.1.0-squash`
 preserves the earlier history and existing consumer pin. Future releases should
@@ -76,7 +74,7 @@ Gemfiles only after the version is available and qualified.
 contains the source gem, both native gems and SHA-256 checksums from
 [CI run 35415089757](https://github.com/clearstackio/forme-ruby/actions/runs/35415089757).
 Every job passed on commit `266628a20a0a52bad222c8f8e6d2277b08122896`, including
-UBI 10, Arch, both macOS versions and all supported Ruby versions. CodeQL also
+every package installation job. CodeQL also
 passed. Packages were downloaded and validated before release; the macOS native
 gem was additionally installed and rendered locally outside the checkout.
 

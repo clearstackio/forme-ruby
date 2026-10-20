@@ -5,31 +5,15 @@ source and native packages, and how to check the installed renderer.
 
 ## Requirements
 
-Use CRuby 3.3 or later. CI covers Ruby 3.3, 3.4 and 4.0 on Linux AMD64 and
-macOS ARM64. The core has no Rails dependency. JRuby, Windows, musl and other
-architectures are not qualified release targets.
+CRuby 3.3 or later. Rails is optional.
 
-| Package | Requirement |
+| Package | Needs |
 | --- | --- |
-| Git checkout or `ruby` source gem | Rust/Cargo 1.94.0 (qualified toolchain), linker, make, network access to pinned Git and crates.io dependencies. |
-| `arm64-darwin` | Apple Silicon, macOS 15 or later. |
-| `x86_64-linux-gnu` | AMD64 Linux, glibc 2.28 or later. |
+| `arm64-darwin` | macOS 15 or later on Apple Silicon. |
+| `x86_64-linux-gnu` | Linux AMD64 with glibc 2.28 or later. |
+| `ruby` source gem or Git checkout | Rust/Cargo 1.94.0, a C linker, make and network access to the pinned Git and crates.io dependencies. |
 
-## Native qualification
-
-The Linux library is built inside pinned Red Hat UBI 8 with a baseline x86-64
-CPU target. CI rejects symbols requiring glibc newer than 2.28. The same gem
-is installed and renders a PDF in UBI 8, 9 and 10, Ubuntu 26.04,
-and current Arch Linux, without Rust installed. UBI testing exercises the
-RHEL userspace baseline; it is not a certification of every RHEL deployment.
-Use a Ruby 3.3+ installation even when a distribution defaults to older Ruby,
-such as Ubuntu 24.04. CI renders with Ruby 3.3, 3.4 and 4.0 on Ubuntu 24.04 runners.
-
-The macOS gem is built on Apple Silicon macOS 15 with a 15.0 deployment target
-and installed on macOS 15 and 26. Both native artifacts are also installed
-across CRuby 3.3, 3.4 and 4.0. The [0.1.0 release run](https://github.com/clearstackio/forme-ruby/actions/runs/35415089757)
-passed every qualification job. These tests establish installation/rendering compatibility, not
-identical pagination for every font and document.
+Native gems need no compiler and no system Forme library.
 
 ## Install from GitHub
 
@@ -46,9 +30,8 @@ Add to your Gemfile and run `bundle install`:
 gem "forme-ruby", "~> 0.1.0", require: "forme_pdf"
 ```
 
-Bundler selects a matching native package where available. A source fallback
-requires the build tools above; it is not a promise of support for every platform.
-Native packages load their own shared library without a system Forme install.
+Bundler selects a matching native package where available and otherwise
+installs the source gem, which needs the build tools above.
 
 ## Verify the installation
 

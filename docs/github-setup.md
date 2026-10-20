@@ -43,10 +43,10 @@ Never force-push just to make CI pass.
 
 ## Release evidence
 
-`CI required` fails if any Ruby test, package build, distribution installation or
+`CI required` fails if any Ruby test, package build, package installation or
 audit fails or is skipped. Linux packages are built against glibc 2.28 and checked
 for newer symbol requirements. Compatibility jobs install the same artifact,
-not a newly rebuilt library. Rolling Arch is deliberately retested weekly.
+not a newly rebuilt library.
 
 The manual release workflow accepts only a successful CI run from this repository,
 for the exact main commit. It validates package names, versions, platforms and

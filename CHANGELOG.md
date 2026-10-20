@@ -4,8 +4,9 @@
 
 ### Changed
 
-- Require Ruby 3.3 or later. Drop the Ruby 3.2 CI lane and the Ubuntu 24.04
-  distribution-Ruby qualification job (its packaged Ruby is 3.2).
+- Require Ruby 3.3 or later. The Ubuntu 24.04 package job installs a pinned
+  Ruby 3.3 build in its clean container.
+- State only platform requirements in the README and installation guide.
 - Update the native engine to Forme HTML 0.28.0 at
   `b97dc101b705ea5d7fea6fb1b20fabfb5bd2d63d`; running headers and footers
   no longer inherit `<body>` color and font.
