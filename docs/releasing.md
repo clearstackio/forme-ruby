@@ -1,7 +1,7 @@
 # Preparing and Releasing Forme Ruby
 
 After reading this guide, you will know how to qualify source/native artifacts
-and which steps publish externally. **Current status: 0.1.0 is published on GitHub and RubyGems.**
+and which steps publish externally. **Published versions are listed in the [changelog](../CHANGELOG.md).**
 Local preparation does not authorize a push, tag or RubyGems publication.
 
 ## Prepare locally
@@ -21,7 +21,7 @@ Local preparation does not authorize a push, tag or RubyGems publication.
 ## Qualify the release commit
 
 After a separately authorized GitHub push, require successful `ci.yml` for that
-exact `main` commit, including every package installation job. Review the three
+exact `master` commit, including every package installation job. Review the three
 intended artifacts: `ruby`, `arm64-darwin` and `x86_64-linux-gnu`. The
 [installation requirements](installation.md) must match what CI qualifies.
 
@@ -53,7 +53,7 @@ for setup. No long-lived RubyGems API key is required by this workflow.
 Pushing a `v*` tag publishes. `release.yml` runs on the tag and:
 
 1. checks the tag equals `v` plus `FormePDF::VERSION`;
-2. finds the successful `ci.yml` run on `main` for the tagged commit and
+2. finds the successful `ci.yml` run on `master` for the tagged commit and
    downloads its three packages, rebuilding nothing;
 3. validates names, versions, platforms, license files and build hooks;
 4. records a GitHub build-provenance attestation for those packages;
@@ -67,8 +67,8 @@ and our other gems:
 
 1. Update `VERSION` in `lib/forme_pdf/version.rb`.
 2. Move the Unreleased CHANGELOG entries under the new version and date.
-3. Commit to `main` and wait for CI to pass on that commit.
-4. Tag and push: `git tag vX.Y.Z && git push origin main vX.Y.Z`.
+3. Commit to `master` and wait for CI to pass on that commit.
+4. Tag and push: `git tag vX.Y.Z && git push origin master vX.Y.Z`.
 
 Treat the tag push as publication, not a dry run. Afterward, verify all three
 platforms and their attestations on RubyGems and install from RubyGems in a clean
@@ -86,12 +86,12 @@ every package installation job. CodeQL also
 passed. Packages were downloaded and validated before release; the macOS native
 gem was additionally installed and rendered locally outside the checkout.
 
-The GitHub `rubygems` environment exists and allows deployment from `main`.
+The GitHub `rubygems` environment exists.
 [Registry publication run 35415885728](https://github.com/clearstackio/forme-ruby/actions/runs/35415885728)
 succeeded through trusted publishing for all three platforms. Downloads from
 RubyGems matched the CI and GitHub release artifacts byte-for-byte. A fresh
 macOS ARM registry installation loaded the native library and rendered a PDF.
 
 The publisher is configured; do not recreate it for subsequent versions.
-Version 0.1.0 is already published and must not be pushed again. Use a new
+A published version must never be pushed again. Use a new
 version for future releases and qualify its packages before publication.

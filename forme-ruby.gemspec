@@ -13,9 +13,9 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 3.3"
   spec.metadata = {
     "source_code_uri" => spec.homepage,
-    "documentation_uri" => "#{spec.homepage}/blob/main/docs/README.md",
+    "documentation_uri" => "#{spec.homepage}/blob/master/docs/README.md",
     "bug_tracker_uri" => "#{spec.homepage}/issues",
-    "changelog_uri" => "#{spec.homepage}/blob/main/CHANGELOG.md",
+    "changelog_uri" => "#{spec.homepage}/blob/master/CHANGELOG.md",
     "rubygems_mfa_required" => "true",
     "allowed_push_host" => "https://rubygems.org"
   }

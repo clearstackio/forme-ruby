@@ -9,7 +9,7 @@ require_relative "../lib/forme_pdf/version"
 RSpec.describe "Release CI provenance validation" do
   let(:script) { File.expand_path("../script/ci/verify-run.rb", __dir__) }
   let(:run) do
-    {"conclusion" => "success", "head_sha" => "reviewed-sha", "head_branch" => "main",
+    {"conclusion" => "success", "head_sha" => "reviewed-sha", "head_branch" => "master",
      "head_repository" => {"full_name" => "clearstackio/forme-ruby"},
      "event" => "push", "path" => ".github/workflows/ci.yml"}
   end
@@ -23,7 +23,7 @@ RSpec.describe "Release CI provenance validation" do
     end
   end
 
-  it "accepts successful CI on the exact main commit" do
+  it "accepts successful CI on the exact master commit" do
     expect(validate(run)).to be(true)
   end
 

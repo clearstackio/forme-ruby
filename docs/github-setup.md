@@ -9,7 +9,7 @@ RubyGems settings a maintainer must enable. These instructions prepare
 The repository includes an MIT license, contributor and security guides, issue
 forms, a pull-request template, CODEOWNERS, Dependabot, CodeQL, dependency review,
 and build/release workflows. Actions are pinned to full commit SHAs; Dependabot
-proposes updates. CI runs on pull requests, main pushes and a weekly schedule.
+proposes updates. CI runs on pull requests, master pushes and a weekly schedule.
 PR jobs do not receive publishing credentials. Checkout does not persist tokens.
 
 ## Configure GitHub after an authorized push
@@ -20,7 +20,7 @@ PR jobs do not receive publishing credentials. Checkout does not persist tokens.
    graph, Dependabot alerts, secret scanning and push protection where available.
    CodeQL is provided as an advanced workflow for Ruby, Rust and GitHub Actions; do not also enable
    CodeQL default setup.
-3. After the first successful run, protect `main` with a ruleset requiring pull
+3. After the first successful run, protect `master` with a ruleset requiring pull
    requests, one approving review, resolved conversations, current branches and
    the `CI required`, CodeQL matrix and dependency-review checks. Select the
    actual check names from GitHub. Block deletion and force pushes. Require code
@@ -36,7 +36,7 @@ PR jobs do not receive publishing credentials. Checkout does not persist tokens.
 
 The authorized initial history consolidation is complete. Remote branch
 `archive/pre-0.1.0-squash` preserves the old consumer pin. The `rubygems`
-environment deploys only from `v*` tags (it allowed `main` for the manual 0.1.0
+environment deploys only from `v*` tags (it allowed the default branch for the manual 0.1.0
 release). RubyGems trusted publishing successfully published 0.1.0. A second reviewer remains a
 separate repository setup task.
 Never force-push just to make CI pass.
@@ -49,7 +49,7 @@ for newer symbol requirements. Compatibility jobs install the same artifact,
 not a newly rebuilt library.
 
 The tag-triggered release workflow accepts only a successful CI run from this
-repository, for the exact main commit the tag points to. It validates package names, versions, platforms and
+repository, for the exact master commit the tag points to. It validates package names, versions, platforms and
 license files before trusted publication, and records an attestation for the
 promotion workflow. Keep the successful CI URL with release notes. GitHub
 settings, hosted matrix success and RubyGems setup must be confirmed separately;

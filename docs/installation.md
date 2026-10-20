@@ -18,7 +18,7 @@ Native gems need no compiler and no system Forme library.
 ## Install from GitHub
 
 Download the matching native gem and `SHA256SUMS` from the
-[0.1.0 release](https://github.com/clearstackio/forme-ruby/releases/tag/v0.1.0).
+[0.2.0 release](https://github.com/clearstackio/forme-ruby/releases/tag/v0.2.0).
 Check its digest with `shasum -a 256 <filename>` against the checksum file, then
 run `gem install ./<filename>`.
 
@@ -27,7 +27,7 @@ run `gem install ./<filename>`.
 Add to your Gemfile and run `bundle install`:
 
 ```ruby
-gem "forme-ruby", "~> 0.1.0", require: "forme_pdf"
+gem "forme-ruby", "~> 0.2.0", require: "forme_pdf"
 ```
 
 Bundler selects a matching native package where available and otherwise
