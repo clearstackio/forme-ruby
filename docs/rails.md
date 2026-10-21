@@ -51,6 +51,7 @@ FormePDF.verify!
 ```
 
 Load failure then prevents startup instead of silently disabling PDF reports.
-Test actual rendering in the deployment image too. The adapter spec uses an
-isolated controller double; consumers must test their actual Rails stack and
-report routes. No specific Rails version matrix is claimed by this gem.
+Test actual rendering in the deployment image too. The adapter spec renders a
+real `ActionController::Base` template and layout with Action Pack 8; consumers
+must still test their actual Rails stack and report routes. No specific Rails
+version matrix is claimed by this gem.

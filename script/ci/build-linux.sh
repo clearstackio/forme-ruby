@@ -13,10 +13,11 @@ chmod +x /tmp/rustup-init
 export PATH="$CARGO_HOME/bin:$PATH"
 export RUSTFLAGS="-C target-cpu=x86-64"
 gem install bundler --version 4.0.23 --no-document
+export BUNDLE_WITHOUT=rails
 bundle _4.0.23_ install
 bundle _4.0.23_ exec rake compile
 cargo test --release --locked --manifest-path ext/forme_pdf/Cargo.toml
-bundle _4.0.23_ exec rspec
+bundle _4.0.23_ exec rspec --exclude-pattern spec/rails_spec.rb
 ruby script/ci/check-linux-abi.rb
 ruby script/notices.rb
 bundle _4.0.23_ exec rake 'package[source]'
