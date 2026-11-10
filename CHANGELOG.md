@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.1 (2026-11-10)
+
+### Security
+
+- Update development dependencies to their patched releases: Action Pack and
+  Action View 8.1.4.1, Rack 3.2.8, Nokogiri 1.19.7, Loofah 2.25.3, Crass 1.0.8
+  and rails-html-sanitizer 1.7.2. `bundle-audit` reports no advisories. Runtime
+  dependencies and the packaged gem's behavior are unchanged.
+
+### Changed
+
+- Build and release with Bundler and RubyGems 4.0.24.
+- Pin `ruby/setup-ruby` to v1.338.0 and name each pinned action's exact
+  release in the workflows.
+
 ## 0.2.0 (2026-10-20)
 
 ### Breaking

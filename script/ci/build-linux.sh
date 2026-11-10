@@ -12,14 +12,14 @@ chmod +x /tmp/rustup-init
 /tmp/rustup-init -y --no-modify-path --profile minimal --default-toolchain 1.94.0
 export PATH="$CARGO_HOME/bin:$PATH"
 export RUSTFLAGS="-C target-cpu=x86-64"
-gem install bundler --version 4.0.23 --no-document
+gem install bundler --version 4.0.24 --no-document
 export BUNDLE_WITHOUT=rails
-bundle _4.0.23_ install
-bundle _4.0.23_ exec rake compile
+bundle _4.0.24_ install
+bundle _4.0.24_ exec rake compile
 cargo test --release --locked --manifest-path ext/forme_pdf/Cargo.toml
-bundle _4.0.23_ exec rspec --exclude-pattern spec/rails_spec.rb
+bundle _4.0.24_ exec rspec --exclude-pattern spec/rails_spec.rb
 ruby script/ci/check-linux-abi.rb
 ruby script/notices.rb
-bundle _4.0.23_ exec rake 'package[source]'
-bundle _4.0.23_ exec rake 'package[native]'
+bundle _4.0.24_ exec rake 'package[source]'
+bundle _4.0.24_ exec rake 'package[native]'
 ruby script/test_packages.rb

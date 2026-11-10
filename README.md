@@ -9,24 +9,24 @@ WebAssembly or separate rendering service is needed.
 
 This is an independent MIT-licensed binding maintained by
 [ClearStack](https://github.com/clearstackio), not an official upstream project.
-**[0.2.0 is available on RubyGems](https://rubygems.org/gems/forme-ruby/versions/0.2.0).**
+**[0.2.1 is available on RubyGems](https://rubygems.org/gems/forme-ruby/versions/0.2.1).**
 
 ## Getting started
 
 Add to your Gemfile and run `bundle install`:
 
 ```ruby
-gem "forme-ruby", "~> 0.2.0", require: "forme_pdf"
+gem "forme-ruby", "~> 0.2.1", require: "forme_pdf"
 ```
 
 Or install directly:
 
 ```sh
-gem install forme-ruby -v 0.2.0
+gem install forme-ruby -v 0.2.1
 ```
 
 RubyGems selects a matching native package where available. The same packages
-and checksums are available in the [GitHub release](https://github.com/clearstackio/forme-ruby/releases/tag/v0.2.0).
+and checksums are available in the [GitHub release](https://github.com/clearstackio/forme-ruby/releases/tag/v0.2.1).
 
 ```ruby
 require "forme_pdf"
