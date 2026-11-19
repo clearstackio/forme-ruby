@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Security
+
+- The Release workflow runs `sigstore-cli` 0.2.3 and `rubygems-await` 0.5.4
+  from `gemfiles/release.gemfile.lock` (exact versions with SHA-256
+  checksums, installed frozen before the RubyGems credentials are set)
+  instead of `gem exec`, which resolved their dependencies afresh in a job
+  holding `id-token: write` (EBA-20638).
+- Pin `ruby/setup-ruby` v1.342.0, `actions/upload-artifact` v7.0.2,
+  `actions/download-artifact` v8.0.2, `github/codeql-action` v4.39.3 and
+  `actions/attest-build-provenance` v3.2.0 (EBA-20638), and the Ubuntu 24.04
+  and 26.04 CI images at their 2026-11-16 digests (EBA-20660). Runtime code and dependencies are
+  unchanged.
+
 ## 0.2.1 (2026-11-10)
 
 ### Security

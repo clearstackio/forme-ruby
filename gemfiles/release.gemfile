@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+# The tools the Release workflow runs to sign and wait for the published
+# packages, locked with checksums (release.gemfile.lock) instead of
+# `gem exec <name>:<version>`, which resolves their dependencies afresh in a
+# job that holds id-token: write. Not part of the gem.
+source "https://rubygems.org"
+
+gem "sigstore-cli", "0.2.3"
+gem "rubygems-await", "0.5.4"

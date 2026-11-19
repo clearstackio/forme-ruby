@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+      - uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
         with:
           ruby-version: '3.3'
           rubygems: '4.0.24'
@@ -42,7 +42,7 @@ jobs:
             --jq '.workflow_runs[0]' > /tmp/forme-ci-run.json
           ruby script/ci/verify-run.rb /tmp/forme-ci-run.json
           echo "run_id=$(ruby -rjson -e 'print JSON.parse(File.read(ARGV[0])).fetch("id")' /tmp/forme-ci-run.json)" >> "$GITHUB_OUTPUT"
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           github-token: ${{ github.token }}
           run-id: ${{ steps.ci.outputs.run_id }}
@@ -51,7 +51,7 @@ jobs:
           merge-multiple: true
       - run: ruby script/ci/verify-release.rb
       - name: Attest tested packages
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@96278af6caaf10aea03fd8d33a09a777ca52d62f # v3.2.0
         with:
           subject-path: pkg/*.gem
       - name: Publish the GitHub release, or match an existing one
@@ -66,12 +66,23 @@ jobs:
             gh release create "$GITHUB_REF_NAME" pkg/*.gem pkg/SHA256SUMS --verify-tag \
               --title "$GITHUB_REF_NAME" --notes "See the [changelog](https://github.com/$GITHUB_REPOSITORY/blob/master/CHANGELOG.md)."
           fi
+      # sigstore-cli and rubygems-await come from gemfiles/release.gemfile.lock
+      # (exact versions and checksums), installed before any credential is set.
+      - name: Install the locked release tools
+        env:
+          BUNDLE_GEMFILE: gemfiles/release.gemfile
+          BUNDLE_FROZEN: 'true'
+        run: bundle install
       - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
       - name: Sign and publish the tested packages
+        env:
+          BUNDLE_GEMFILE: gemfiles/release.gemfile
         run: |
           for gem_file in pkg/*.gem; do
-            gem exec sigstore-cli:0.2.3 sign "$gem_file" --bundle "$gem_file.sigstore.json"
+            bundle exec sigstore-cli sign "$gem_file" --bundle "$gem_file.sigstore.json"
             gem push "$gem_file" --attestation "$gem_file.sigstore.json"
           done
       - name: Wait for the release to propagate
-        run: gem exec rubygems-await:0.5.4 pkg/*.gem
+        env:
+          BUNDLE_GEMFILE: gemfiles/release.gemfile
+        run: bundle exec rubygems-await pkg/*.gem
